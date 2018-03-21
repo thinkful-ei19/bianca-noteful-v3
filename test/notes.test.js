@@ -44,37 +44,54 @@ describe('Noteful API - Notes', function() {
 
             });
         });
-        // it('should return correct search results for a searchTerm query', function () {
-        //     const term = 'gaga';
-        //     const dbPromise = Note.find(
-        //       { $text: { $search: term } },
-        //       { score: { $meta: 'textScore' } })
-        //       .sort({ score: { $meta: 'textScore' } });
-        //     const apiPromise = chai.request(app).get(`/api/notes?searchTerm=${term}`);
+        it('should return a list with the correct right fields', function () {
+            const dbPromise = Note.find();
+            const apiPromise = chai.request(app).get('/api/notes');
       
-        //     return Promise.all([dbPromise, apiPromise])
-        //       .then(([data, res]) => {
-        //         expect(res).to.have.status(200);
-        //         expect(res).to.be.json;
-        //         expect(res.body).to.be.a('array');
-        //         expect(res.body).to.have.length(1);
-        //         expect(res.body[0]).to.be.an('object');
-        //         expect(res.body[0].id).to.equal(data[0].id);
-        //       });
-        //   });
+            return Promise.all([dbPromise, apiPromise])
+              .then(([data, res]) => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.a('array');
+                expect(res.body).to.have.length(data.length);
+                res.body.forEach(function (item) {
+                  expect(item).to.be.a('object');
+                  expect(item).to.have.keys('id', 'title', 'content', 'created');
+                });
+            });
+        });
+
+        it('should return correct search results for a searchTerm query', function () {
+            const term = 'gaga';
+            const dbPromise = Note.find(
+              { $text: { $search: term } },
+              { score: { $meta: 'textScore' } })
+              .sort({ score: { $meta: 'textScore' } });
+            const apiPromise = chai.request(app).get(`/api/notes?searchTerm=${term}`);
       
-        //   it('should return an empty array for an incorrect query', function () {
-        //     const dbPromise = Note.find({ title: { $regex: /NotValid/i } });
-        //     const apiPromise = chai.request(app).get('/api/notes?searchTerm=NotValid');
+            return Promise.all([dbPromise, apiPromise])
+              .then(([data, res]) => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.a('array');
+                expect(res.body).to.have.length(1);
+                expect(res.body[0]).to.be.an('object');
+                expect(res.body[0].id).to.equal(data[0].id);
+              });
+          });
       
-        //     return Promise.all([dbPromise, apiPromise])
-        //       .then(([data, res]) => {
-        //         expect(res).to.have.status(200);
-        //         expect(res).to.be.json;
-        //         expect(res.body).to.be.a('array');
-        //         expect(res.body).to.have.length(data.length);
-        //       });
-        //   });
+          it('should return an empty array for an incorrect query', function () {
+            const dbPromise = Note.find({ title: { $regex: /NotValid/i } });
+            const apiPromise = chai.request(app).get('/api/notes?searchTerm=NotValid');
+      
+            return Promise.all([dbPromise, apiPromise])
+              .then(([data, res]) => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.a('array');
+                expect(res.body).to.have.length(data.length);
+              });
+          });
         
 
     });
